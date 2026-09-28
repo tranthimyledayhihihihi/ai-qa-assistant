@@ -1,0 +1,38 @@
+[
+  {
+    "test_id": "TC_AI_01",
+    "title": "Dung email sai mat khau",
+    "payload": {
+      "email": "student@sv.ute.udn.vn",
+      "password": "WrongPassword@123"
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_AI_02",
+    "title": "Email khong ton tai",
+    "payload": {
+      "email": "ghost_account_9999@sv.ute.udn.vn",
+      "password": "Password@123"
+    },
+    "expected_status": 404
+  },
+  {
+    "test_id": "TC_AI_03",
+    "title": "De trong email va mat khau",
+    "payload": {
+      "email": "",
+      "password": ""
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_AI_04",
+    "title": "Email sai dinh dang",
+    "payload": {
+      "email": "abc_invalid_email",
+      "password": "Password@123"
+    },
+    "expected_status": 400
+  }
+]
