@@ -1,38 +1,160 @@
 [
   {
-    "test_id": "TC_AI_01",
-    "title": "Dung email sai mat khau",
+    "test_id": "TC_01",
+    "type": "Positive",
+    "title": "Dang nhap thanh cong voi email sinh vien (@sv.ute.udn.vn)",
     "payload": {
       "email": "student@sv.ute.udn.vn",
-      "password": "WrongPassword@123"
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 200
+  },
+  {
+    "test_id": "TC_02",
+    "type": "Positive",
+    "title": "Dang nhap thanh cong voi email can bo/giang vien (@ute.udn.vn)",
+    "payload": {
+      "email": "lecturer@ute.udn.vn",
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 200
+  },
+  {
+    "test_id": "TC_03",
+    "type": "Positive",
+    "title": "Dang nhap thanh cong voi password dai (100 ky tu)",
+    "payload": {
+      "email": "student01@sv.ute.udn.vn",
+      "password": "P@ssword12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012"
+    },
+    "expected_status": 200
+  },
+  {
+    "test_id": "TC_04",
+    "type": "Boundary",
+    "title": "Dang nhap voi password dat nguong toi thieu (dung 8 ky tu)",
+    "payload": {
+      "email": "student@sv.ute.udn.vn",
+      "password": "Pass@123"
+    },
+    "expected_status": 200
+  },
+  {
+    "test_id": "TC_05",
+    "type": "Boundary",
+    "title": "Dang nhap that bai voi password duoi nguong toi thieu (7 ky tu)",
+    "payload": {
+      "email": "student@sv.ute.udn.vn",
+      "password": "Pass@12"
     },
     "expected_status": 400
   },
   {
-    "test_id": "TC_AI_02",
-    "title": "Email khong ton tai",
+    "test_id": "TC_06",
+    "type": "Validation",
+    "title": "Payload thieu hoan toan truong email",
     "payload": {
-      "email": "ghost_account_9999@sv.ute.udn.vn",
-      "password": "Password@123"
+      "password": "ValidPassword@123"
     },
-    "expected_status": 404
+    "expected_status": 400
   },
   {
-    "test_id": "TC_AI_03",
-    "title": "De trong email va mat khau",
+    "test_id": "TC_07",
+    "type": "Validation",
+    "title": "Payload thieu hoan toan truong password",
+    "payload": {
+      "email": "student@sv.ute.udn.vn"
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_08",
+    "type": "Validation",
+    "title": "Truong email rong chuoi",
     "payload": {
       "email": "",
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_09",
+    "type": "Validation",
+    "title": "Truong password rong chuoi",
+    "payload": {
+      "email": "student@sv.ute.udn.vn",
       "password": ""
     },
     "expected_status": 400
   },
   {
-    "test_id": "TC_AI_04",
-    "title": "Email sai dinh dang",
+    "test_id": "TC_10",
+    "type": "Validation",
+    "title": "Email khong thuoc mien quy dinh (vi du: @gmail.com)",
     "payload": {
-      "email": "abc_invalid_email",
-      "password": "Password@123"
+      "email": "student@gmail.com",
+      "password": "ValidPassword@123"
     },
     "expected_status": 400
+  },
+  {
+    "test_id": "TC_11",
+    "type": "Validation",
+    "title": "Email sai ten mien mo rong (vi du: @ute.udn.com thay vi .vn)",
+    "payload": {
+      "email": "lecturer@ute.udn.com",
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_12",
+    "type": "Validation",
+    "title": "Email thieu phan username truoc ky tu @",
+    "payload": {
+      "email": "@sv.ute.udn.vn",
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_13",
+    "type": "Validation",
+    "title": "Email sai cu phap (khong co ky tu @)",
+    "payload": {
+      "email": "studentsv.ute.udn.vn",
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_14",
+    "type": "Validation",
+    "title": "Email chua khoang trang o giua",
+    "payload": {
+      "email": "stu dent@sv.ute.udn.vn",
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 400
+  },
+  {
+    "test_id": "TC_15",
+    "type": "Negative",
+    "title": "Dang nhap that bai do tai khoan khong ton tai trong he thong",
+    "payload": {
+      "email": "nonexistent@sv.ute.udn.vn",
+      "password": "ValidPassword@123"
+    },
+    "expected_status": 401
+  },
+  {
+    "test_id": "TC_16",
+    "type": "Negative",
+    "title": "Dang nhap that bai do sai mat khau cua tai khoan ton tai",
+    "payload": {
+      "email": "student@sv.ute.udn.vn",
+      "password": "WrongPassword@999"
+    },
+    "expected_status": 401
   }
 ]

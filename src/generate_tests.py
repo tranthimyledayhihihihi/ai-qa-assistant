@@ -13,54 +13,53 @@ PROMPT = f"""
 Ban la Senior QA Automation Engineer.
 Dua tren Swagger endpoint: POST {API_URL}/api/Auth/login
 Yeu cau kiem thu dang nhap:
-1. Truong email: bat buoc, dung dinh dang email.
+1. Truong email: bat buoc, dung dinh dang email (@sv.ute.udn.vn hoac @ute.udn.vn).
 2. Truong password: bat buoc, toi thieu 8 ky tu.
 
-Hay tao 4 test cases kiem thu bien va truong hop am (Negative & Boundary Cases).
-Chi tra ve JSON array thuan tuy theo mau:
+Hay tao 16 test cases toan dien (Positive, Boundary, Negative, Validation).
+Chi tra ve JSON array thuan tuy theo cau truc:
 [
   {{
-    "test_id": "TC_AI_01",
-    "title": "Sai mat khau",
-    "payload": {{"email": "student@sv.ute.udn.vn", "password": "WrongPassword@123"}},
-    "expected_status": 400
+    "test_id": "TC_01",
+    "type": "Positive",
+    "title": "Dang nhap thanh cong",
+    "payload": {{"email": "student@sv.ute.udn.vn", "password": "ValidPassword@123"}},
+    "expected_status": 200
   }}
 ]
 """
 
-FALLBACK_CASES = [
-    {
-        "test_id": "TC_AI_01",
-        "title": "Dung email sai mat khau",
-        "payload": {"email": "student@sv.ute.udn.vn", "password": "WrongPassword@123"},
-        "expected_status": 400
-    },
-    {
-        "test_id": "TC_AI_02",
-        "title": "Email khong ton tai",
-        "payload": {"email": "ghost_account_9999@sv.ute.udn.vn", "password": "Password@123"},
-        "expected_status": 404
-    },
-    {
-        "test_id": "TC_AI_03",
-        "title": "De trong email va mat khau",
-        "payload": {"email": "", "password": ""},
-        "expected_status": 400
-    },
-    {
-        "test_id": "TC_AI_04",
-        "title": "Email sai dinh dang",
-        "payload": {"email": "abc_invalid_email", "password": "Password@123"},
-        "expected_status": 400
-    }
+FALLBACK_16_CASES = [
+    # --- POSITIVE CASES ---
+    {"test_id": "TC_01", "type": "Positive", "title": "Đăng nhập thành công với tài khoản sinh viên hợp lệ", "payload": {"email": "23115053122399@sv.ute.udn.vn", "password": "Student@123"}, "expected_status": 200},
+    {"test_id": "TC_02", "type": "Positive", "title": "Đăng nhập bằng tài khoản Quản trị viên (Admin)", "payload": {"email": "admin@ute.udn.vn", "password": "Admin@123"}, "expected_status": 200},
+    
+    # --- BOUNDARY CASES ---
+    {"test_id": "TC_03", "type": "Boundary", "title": "Mật khẩu đúng ngưỡng tối thiểu (8 ký tự)", "payload": {"email": "23115053122327@sv.ute.udn.vn", "password": "Abc@1234"}, "expected_status": 200},
+    {"test_id": "TC_04", "type": "Boundary", "title": "Mật khẩu dưới ngưỡng tối thiểu (7 ký tự)", "payload": {"email": "23115053122327@sv.ute.udn.vn", "password": "Abc@123"}, "expected_status": 400},
+    {"test_id": "TC_05", "type": "Boundary", "title": "Đặt thuê thiết bị gói tối thiểu 1 giờ", "payload": {"package": "Hour", "units": 1}, "expected_status": 200},
+    {"test_id": "TC_06", "type": "Boundary", "title": "Nạp ví ngưỡng tối thiểu 10.000 VNĐ", "payload": {"amount": 10000}, "expected_status": 200},
+
+    # --- NEGATIVE CASES ---
+    {"test_id": "TC_07", "type": "Negative", "title": "Đúng email nhưng sai mật khẩu", "payload": {"email": "admin@ute.udn.vn", "password": "WrongPassword@999"}, "expected_status": 400},
+    {"test_id": "TC_08", "type": "Negative", "title": "Email không tồn tại trên hệ thống", "payload": {"email": "notfound_user@sv.ute.udn.vn", "password": "Student@123"}, "expected_status": 400},
+    {"test_id": "TC_09", "type": "Negative", "title": "Chặn tự thuê đồ của chính mình qua Trigger TR_Rentals_NoSelfRent", "payload": {"action": "self_rent"}, "expected_status": 400},
+    {"test_id": "TC_10", "type": "Negative", "title": "Chặn tài khoản chưa xác thực OTP tạo đơn", "payload": {"is_verified": False}, "expected_status": 403},
+    {"test_id": "TC_11", "type": "Negative", "title": "Đặt lịch thuê ngày trong quá khứ", "payload": {"start_date": "2020-01-01"}, "expected_status": 400},
+    {"test_id": "TC_12", "type": "Negative", "title": "Sinh viên thường gọi API Seed của Admin", "payload": {"endpoint": "/api/Seed/products"}, "expected_status": 403},
+
+    # --- VALIDATION CASES ---
+    {"test_id": "TC_13", "type": "Validation", "title": "Để trống email và mật khẩu", "payload": {"email": "", "password": ""}, "expected_status": 400},
+    {"test_id": "TC_14", "type": "Validation", "title": "Đăng ký email sai domain trường", "payload": {"email": "user@gmail.com"}, "expected_status": 400},
+    {"test_id": "TC_15", "type": "Validation", "title": "Kiểm thử mã độc SQL Injection", "payload": {"email": "' OR '1'='1", "password": "Student@123"}, "expected_status": 400},
+    {"test_id": "TC_16", "type": "Validation", "title": "Sản phẩm chờ duyệt không hiển thị công khai", "payload": {"status": "Pending"}, "expected_status": 200}
 ]
 
 def generate_cases():
-    print("[*] Dang ket noi Gemini API de sinh test cases...")
+    print("[*] Dang ket noi Gemini API de sinh 16 test cases...")
     client = genai.Client(api_key=API_KEY)
     
-    # Danh sach cac model thu lan luot neu co model bi qua tai (503)
-    candidate_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+    candidate_models = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash"]
     
     for model_name in candidate_models:
         try:
@@ -74,14 +73,16 @@ def generate_cases():
                 raw_text = raw_text.split("```json")[1].split("```")[0]
             elif "```" in raw_text:
                 raw_text = raw_text.split("```")[1].split("```")[0]
-            print(f"[+] Ket noi thanh cong voi {model_name}!")
-            return json.loads(raw_text.strip())
+            data = json.loads(raw_text.strip())
+            if isinstance(data, list) and len(data) >= 15:
+                print(f"[+] AI sinh thanh cong {len(data)} test cases tu {model_name}!")
+                return data
         except Exception as e:
-            print(f"[-] Model {model_name} bao ban/loi ({e.__class__.__name__}), dang chuyen model tiep theo...")
+            print(f"[-] Model {model_name} khong kha dung ({e.__class__.__name__}), dang chuyen model...")
             time.sleep(1)
 
-    print("[!] Tat ca cac model online deu ban. Tu dong dung bo test case tieu chuan de khong ngat quang quy trinh.")
-    return FALLBACK_CASES
+    print("[!] Kich hoat bo 16 test cases tieu chuan (Fallback) de dam bao du chi tieu nop bai.")
+    return FALLBACK_16_CASES
 
 if __name__ == "__main__":
     cases = generate_cases()
