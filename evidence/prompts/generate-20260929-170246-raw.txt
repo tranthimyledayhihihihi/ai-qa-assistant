@@ -4,10 +4,7 @@
     "group": "positive",
     "title": "Dang nhap thanh cong voi email va mat khau hop le",
     "rationale": "Kiem tra tinh nang dang nhap hoat động dung với thong tin hop le",
-    "input": {
-      "email": "<VALID_EMAIL>",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "<VALID_EMAIL>", "password": "<VALID_PASSWORD>"},
     "expected_http_status": 200,
     "expected_error_kind": null,
     "expected_message_contains": "Đăng nhập thành công",
@@ -19,10 +16,7 @@
     "group": "positive",
     "title": "Dang nhap thanh cong voi tai khoan chua xac thuc OTP",
     "rationale": "Kiem tra tai khoan IsVerified = 0 van co the dang nhap vi chi cam giao dich",
-    "input": {
-      "email": "<UNVERIFIED_EMAIL>",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "<UNVERIFIED_EMAIL>", "password": "<VALID_PASSWORD>"},
     "expected_http_status": 200,
     "expected_error_kind": null,
     "expected_message_contains": "Đăng nhập thành công",
@@ -34,10 +28,7 @@
     "group": "negative",
     "title": "Dang nhap that bai do sai mat khau",
     "rationale": "Kiem tra he thong tu choi khi mat khau khong dung",
-    "input": {
-      "email": "<VALID_EMAIL>",
-      "password": "WrongPassword123"
-    },
+    "input": {"email": "<VALID_EMAIL>", "password": "WrongPassword123"},
     "expected_http_status": 400,
     "expected_error_kind": "business",
     "expected_message_contains": "Email hoặc mật khẩu không đúng",
@@ -49,10 +40,7 @@
     "group": "negative",
     "title": "Dang nhap that bai do email khong ton tai",
     "rationale": "Kiem tra he thong xu ly khi email chua dang ky trong he thong",
-    "input": {
-      "email": "notexist@sv.ute.udn.vn",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "notexist@sv.ute.udn.vn", "password": "<VALID_PASSWORD>"},
     "expected_http_status": 400,
     "expected_error_kind": "business",
     "expected_message_contains": "Email hoặc mật khẩu không đúng",
@@ -64,10 +52,7 @@
     "group": "negative",
     "title": "Dang nhap that bai do sai ca email va mat khau",
     "rationale": "Kiem tra thong bao loi chung de bao mat thong tin",
-    "input": {
-      "email": "wrong@sv.ute.udn.vn",
-      "password": "WrongPassword123"
-    },
+    "input": {"email": "wrong@sv.ute.udn.vn", "password": "WrongPassword123"},
     "expected_http_status": 400,
     "expected_error_kind": "business",
     "expected_message_contains": "Email hoặc mật khẩu không đúng",
@@ -79,10 +64,7 @@
     "group": "negative",
     "title": "Dang nhap voi email viet hoa mot phan",
     "rationale": "Kiem tra he thong co phan biet hoa thuong cua email hay khong",
-    "input": {
-      "email": "23115053122326@SV.UTE.UDN.VN",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "23115053122326@SV.UTE.UDN.VN", "password": "<VALID_PASSWORD>"},
     "expected_http_status": null,
     "expected_error_kind": null,
     "expected_message_contains": null,
@@ -94,10 +76,7 @@
     "group": "negative",
     "title": "Dang nhap voi khoang trang thua trong email",
     "rationale": "Kiem tra he thong co tu dong trim khoang trang cua email hay khong",
-    "input": {
-      "email": " 23115053122326@sv.ute.udn.vn ",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": " 23115053122326@sv.ute.udn.vn ", "password": "<VALID_PASSWORD>"},
     "expected_http_status": null,
     "expected_error_kind": null,
     "expected_message_contains": null,
@@ -109,10 +88,7 @@
     "group": "boundary",
     "title": "Email co do dai rat ngan khong dung dinh dang",
     "rationale": "Kiem tra bien gioi han do dai toi thieu cua email",
-    "input": {
-      "email": "a@sv.ute.udn.vn",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "a@sv.ute.udn.vn", "password": "<VALID_PASSWORD>"},
     "expected_http_status": null,
     "expected_error_kind": null,
     "expected_message_contains": null,
@@ -124,10 +100,7 @@
     "group": "boundary",
     "title": "Mat khau co do dai cuc ngan",
     "rationale": "Kiem tra gioi han do dai toi thieu cua mat khau chua duoc xac nhan",
-    "input": {
-      "email": "<VALID_EMAIL>",
-      "password": "1"
-    },
+    "input": {"email": "<VALID_EMAIL>", "password": "1"},
     "expected_http_status": null,
     "expected_error_kind": null,
     "expected_message_contains": null,
@@ -139,10 +112,7 @@
     "group": "boundary",
     "title": "Mat khau co do dai cuc dai",
     "rationale": "Kiem tra he thong co xu ly dung khi mat khau qua dai hay khong",
-    "input": {
-      "email": "<VALID_EMAIL>",
-      "password": "VeryLongPassword1234567890123456789012345678901234567890"
-    },
+    "input": {"email": "<VALID_EMAIL>", "password": "VeryLongPassword1234567890123456789012345678901234567890"},
     "expected_http_status": null,
     "expected_error_kind": null,
     "expected_message_contains": null,
@@ -154,10 +124,7 @@
     "group": "boundary",
     "title": "Email co do dai rat dai",
     "rationale": "Kiem tra bien gioi han do dai toi da cua truong email",
-    "input": {
-      "email": "verylongemailaddressnamelongtoohere1234567890@sv.ute.udn.vn",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "verylongemailaddressnamelongtoohere1234567890@sv.ute.udn.vn", "password": "<VALID_PASSWORD>"},
     "expected_http_status": null,
     "expected_error_kind": null,
     "expected_message_contains": null,
@@ -169,10 +136,7 @@
     "group": "validation",
     "title": "De trong ca email va password",
     "rationale": "Kiem tra validate khi khong truyen du lieu bat buoc",
-    "input": {
-      "email": "",
-      "password": ""
-    },
+    "input": {"email": "", "password": ""},
     "expected_http_status": 400,
     "expected_error_kind": "validation",
     "expected_message_contains": "bắt buộc",
@@ -184,10 +148,7 @@
     "group": "validation",
     "title": "De trong password",
     "rationale": "Kiem tra validate rieng cho truong password khi bi bo trong",
-    "input": {
-      "email": "<VALID_EMAIL>",
-      "password": ""
-    },
+    "input": {"email": "<VALID_EMAIL>", "password": ""},
     "expected_http_status": 400,
     "expected_error_kind": "validation",
     "expected_message_contains": "Mật khẩu là bắt buộc",
@@ -199,10 +160,7 @@
     "group": "validation",
     "title": "Email khong dung dinh dang",
     "rationale": "Kiem tra validate cau truc email khong hop le",
-    "input": {
-      "email": "invalid-email",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "invalid-email", "password": "<VALID_PASSWORD>"},
     "expected_http_status": 400,
     "expected_error_kind": "validation",
     "expected_message_contains": "Email không hợp lệ",
@@ -214,10 +172,7 @@
     "group": "validation",
     "title": "Email dung dinh dang nhung khong co duoi @sv.ute.udn.vn",
     "rationale": "Kiem tra quy tac bat buoc ten mien email truong",
-    "input": {
-      "email": "test@gmail.com",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "test@gmail.com", "password": "<VALID_PASSWORD>"},
     "expected_http_status": 400,
     "expected_error_kind": "validation",
     "expected_message_contains": "Email phải có đuôi @sv.ute.udn.vn",
@@ -229,13 +184,34 @@
     "group": "validation",
     "title": "Tan cong SQL Injection vao truong email",
     "rationale": "Kiem tra kha nang chong SQL Injection cua API dang nhap",
-    "input": {
-      "email": "' OR '1'='1",
-      "password": "<VALID_PASSWORD>"
-    },
+    "input": {"email": "' OR '1'='1", "password": "<VALID_PASSWORD>"},
     "expected_http_status": 400,
     "expected_error_kind": "validation",
     "expected_message_contains": "Email không hợp lệ",
+    "priority": "High",
+    "needs_confirmation": false
+  },
+  {
+    "id": "TC-017",
+    "group": "validation",
+    "title": "Thieu hoan toan truong password trong body",
+    "rationale": "Kiem tra validate khi request body thieu key password",
+    "input": {"email": "<VALID_EMAIL>"},
+    "expected_http_status": 400,
+    "expected_error_kind": "validation",
+    "expected_message_contains": "Mật khẩu là bắt buộc",
+    "priority": "High",
+    "needs_confirmation": false
+  },
+  {
+    "id": "TC-018",
+    "group": "validation",
+    "title": "Thieu hoan toan truong email trong body",
+    "rationale": "Kiem tra validate khi request body thieu key email",
+    "input": {"password": "<VALID_PASSWORD>"},
+    "expected_http_status": 400,
+    "expected_error_kind": "validation",
+    "expected_message_contains": "Email",
     "priority": "High",
     "needs_confirmation": false
   }

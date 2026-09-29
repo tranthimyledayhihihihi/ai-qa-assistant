@@ -1,92 +1,141 @@
 import os
+import re
+import sys
 import json
-import time
+from pathlib import Path
+from datetime import datetime
 from dotenv import load_dotenv
 from google import genai
 
 load_dotenv()
-
+ROOT = Path(__file__).resolve().parent.parent
 API_KEY = os.getenv("AI_API_KEY")
-API_URL = os.getenv("API_URL", "https://localhost:7000")
+MODEL = os.getenv("AI_MODEL", "gemini-3.8-flash")
+STORY_FILE = ROOT / "requirements" / "user_stories.md"
+OUT_FILE = ROOT / "tests" / "generated_test_cases.json"
+PROMPT_DIR = ROOT / "evidence" / "prompts"
 
-PROMPT = f"""
-Ban la Senior QA Automation Engineer.
-Dua tren Swagger endpoint: POST {API_URL}/api/Auth/login
-Yeu cau kiem thu dang nhap:
-1. Truong email: bat buoc, dung dinh dang email (@sv.ute.udn.vn hoac @ute.udn.vn).
-2. Truong password: bat buoc, toi thieu 8 ky tu.
+SYSTEM = (
+    "Ban la QA Engineer 5 nam kinh nghiem, chuyen thiet ke test case cho API. "
+    "Chi tra ve JSON hop le, khong giai thich them, khong dung markdown."
+)
 
-Hay tao 16 test cases toan dien (Positive, Boundary, Negative, Validation).
-Chi tra ve JSON array thuan tuy theo cau truc:
-[
-  {{
-    "test_id": "TC_01",
-    "type": "Positive",
-    "title": "Dang nhap thanh cong",
-    "payload": {{"email": "student@sv.ute.udn.vn", "password": "ValidPassword@123"}},
-    "expected_status": 200
-  }}
-]
-"""
+USER_TMPL = """## Boi canh
+API can kiem thu: POST /api/Auth/login
+Body: {{"email": "...", "password": "..."}}
+Chi kiem thu chuc nang DANG NHAP. Khong sinh test cho tinh nang khac (thue do, vi, OTP, admin...).
 
-FALLBACK_16_CASES = [
-    # --- POSITIVE CASES ---
-    {"test_id": "TC_01", "type": "Positive", "title": "Đăng nhập thành công với tài khoản sinh viên hợp lệ", "payload": {"email": "23115053122399@sv.ute.udn.vn", "password": "Student@123"}, "expected_status": 200},
-    {"test_id": "TC_02", "type": "Positive", "title": "Đăng nhập bằng tài khoản Quản trị viên (Admin)", "payload": {"email": "admin@ute.udn.vn", "password": "Admin@123"}, "expected_status": 200},
-    
-    # --- BOUNDARY CASES ---
-    {"test_id": "TC_03", "type": "Boundary", "title": "Mật khẩu đúng ngưỡng tối thiểu (8 ký tự)", "payload": {"email": "23115053122327@sv.ute.udn.vn", "password": "Abc@1234"}, "expected_status": 200},
-    {"test_id": "TC_04", "type": "Boundary", "title": "Mật khẩu dưới ngưỡng tối thiểu (7 ký tự)", "payload": {"email": "23115053122327@sv.ute.udn.vn", "password": "Abc@123"}, "expected_status": 400},
-    {"test_id": "TC_05", "type": "Boundary", "title": "Đặt thuê thiết bị gói tối thiểu 1 giờ", "payload": {"package": "Hour", "units": 1}, "expected_status": 200},
-    {"test_id": "TC_06", "type": "Boundary", "title": "Nạp ví ngưỡng tối thiểu 10.000 VNĐ", "payload": {"amount": 10000}, "expected_status": 200},
+## Su that da xac nhan (KHONG duoc tu suy dien them)
+{story}
 
-    # --- NEGATIVE CASES ---
-    {"test_id": "TC_07", "type": "Negative", "title": "Đúng email nhưng sai mật khẩu", "payload": {"email": "admin@ute.udn.vn", "password": "WrongPassword@999"}, "expected_status": 400},
-    {"test_id": "TC_08", "type": "Negative", "title": "Email không tồn tại trên hệ thống", "payload": {"email": "notfound_user@sv.ute.udn.vn", "password": "Student@123"}, "expected_status": 400},
-    {"test_id": "TC_09", "type": "Negative", "title": "Chặn tự thuê đồ của chính mình qua Trigger TR_Rentals_NoSelfRent", "payload": {"action": "self_rent"}, "expected_status": 400},
-    {"test_id": "TC_10", "type": "Negative", "title": "Chặn tài khoản chưa xác thực OTP tạo đơn", "payload": {"is_verified": False}, "expected_status": 403},
-    {"test_id": "TC_11", "type": "Negative", "title": "Đặt lịch thuê ngày trong quá khứ", "payload": {"start_date": "2020-01-01"}, "expected_status": 400},
-    {"test_id": "TC_12", "type": "Negative", "title": "Sinh viên thường gọi API Seed của Admin", "payload": {"endpoint": "/api/Seed/products"}, "expected_status": 403},
+## Nhiem vu
+Sinh dung {n} test case cho POST /api/Auth/login, gom:
+- positive: it nhat 2 (dang nhap dung)
+- negative: it nhat 5 (sai mat khau, email khong ton tai...)
+- boundary: it nhat 4 (do dai email/mat khau...)
+- validation: it nhat 5 (thieu truong, sai dinh dang, SQL injection thu vao truong email...)
 
-    # --- VALIDATION CASES ---
-    {"test_id": "TC_13", "type": "Validation", "title": "Để trống email và mật khẩu", "payload": {"email": "", "password": ""}, "expected_status": 400},
-    {"test_id": "TC_14", "type": "Validation", "title": "Đăng ký email sai domain trường", "payload": {"email": "user@gmail.com"}, "expected_status": 400},
-    {"test_id": "TC_15", "type": "Validation", "title": "Kiểm thử mã độc SQL Injection", "payload": {"email": "' OR '1'='1", "password": "Student@123"}, "expected_status": 400},
-    {"test_id": "TC_16", "type": "Validation", "title": "Sản phẩm chờ duyệt không hiển thị công khai", "payload": {"status": "Pending"}, "expected_status": 200}
-]
+## Dinh dang dau ra: mot mang JSON, moi phan tu co dung cac truong
+{{
+  "id": "TC-001",
+  "group": "positive" | "negative" | "boundary" | "validation",
+  "title": "tieu de ngan",
+  "rationale": "1 cau: vi sao test nay quan trong",
+  "input": {{"email": "...", "password": "..."}},
+  "expected_http_status": so nguyen hoac null (dung null neu KHONG chac chan),
+  "expected_error_kind": "business" | "validation" | null,
+  "expected_message_contains": "chuoi con mong doi" hoac null,
+  "priority": "High" | "Medium" | "Low",
+  "needs_confirmation": true hoac false
+}}
 
-def generate_cases():
-    print("[*] Dang ket noi Gemini API de sinh 16 test cases...")
+Ghi chu ve expected_error_kind:
+- "business": loi nghiep vu (sai mat khau, tai khoan khong ton tai) -> body co truong success/message
+- "validation": loi validate dau vao (thieu truong, sai dinh dang) -> body co truong errors, KHONG co success/message
+
+## Rang buoc
+- Voi tai khoan dung, dung dung chuoi "<VALID_EMAIL>" va "<VALID_PASSWORD>".
+- Chi dua tren "Su that da xac nhan" o tren. Neu khong chac ket qua, dat expected_http_status=null, expected_error_kind=null, expected_message_contains=null, needs_confirmation=true.
+- KHONG bia them tinh nang khong lien quan den dang nhap.
+- Chi tra ve mang JSON, khong markdown."""
+
+REQUIRED = ["id", "group", "title", "rationale", "input",
+            "expected_http_status", "expected_error_kind",
+            "expected_message_contains", "priority", "needs_confirmation"]
+
+
+def extract_json(text):
+    t = text.strip()
+    t = re.sub(r"^```(?:json)?\s*", "", t)
+    t = re.sub(r"\s*```$", "", t)
+    return json.loads(t)
+
+
+def validate(cases):
+    if not isinstance(cases, list):
+        raise ValueError("AI khong tra ve mot mang JSON")
+    clean, seen = [], set()
+    for i, c in enumerate(cases, 1):
+        if not isinstance(c, dict):
+            print(f"  ! Bo #{i}: khong phai object"); continue
+        missing = [k for k in REQUIRED if k not in c]
+        if missing:
+            print(f"  ! Bo {c.get('id', f'#{i}')}: thieu {missing}"); continue
+        if c["group"] not in ("positive", "negative", "boundary", "validation"):
+            print(f"  ! Bo {c['id']}: group sai"); continue
+        if not isinstance(c.get("input"), dict) or "email" not in c["input"] or "password" not in c["input"]:
+            print(f"  ! Bo {c['id']}: input phai co email va password"); continue
+        if c["id"] in seen:
+            print(f"  ! Bo {c['id']}: trung id"); continue
+        seen.add(c["id"])
+        clean.append(c)
+    return clean
+
+
+def main():
+    if not API_KEY or API_KEY == "your-key-here":
+        print("LOI: chua co AI_API_KEY hop le trong .env"); sys.exit(1)
+
+    story = STORY_FILE.read_text(encoding="utf-8")
+    prompt = USER_TMPL.format(story=story.strip(), n=18)
+
+    PROMPT_DIR.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    (PROMPT_DIR / f"generate-{stamp}-prompt.md").write_text(
+        f"# SYSTEM\n{SYSTEM}\n\n# USER\n{prompt}\n", encoding="utf-8")
+
+    print(f"Dang goi model {MODEL} de sinh test case...")
     client = genai.Client(api_key=API_KEY)
-    
-    candidate_models = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash"]
-    
-    for model_name in candidate_models:
-        try:
-            print(f"[*] Thu goi model: {model_name}...")
-            response = client.models.generate_content(
-                model=model_name,
-                contents=PROMPT
-            )
-            raw_text = response.text.strip()
-            if "```json" in raw_text:
-                raw_text = raw_text.split("```json")[1].split("```")[0]
-            elif "```" in raw_text:
-                raw_text = raw_text.split("```")[1].split("```")[0]
-            data = json.loads(raw_text.strip())
-            if isinstance(data, list) and len(data) >= 15:
-                print(f"[+] AI sinh thanh cong {len(data)} test cases tu {model_name}!")
-                return data
-        except Exception as e:
-            print(f"[-] Model {model_name} khong kha dung ({e.__class__.__name__}), dang chuyen model...")
-            time.sleep(1)
+    try:
+        resp = client.models.generate_content(model=MODEL, contents=[SYSTEM, prompt])
+        raw = resp.text
+    except Exception as e:
+        print(f"LOI khi goi AI: {e}")
+        print("KHONG tu tao test case gia. Hay thu lai lenh nay sau vai giay.")
+        sys.exit(1)
 
-    print("[!] Kich hoat bo 16 test cases tieu chuan (Fallback) de dam bao du chi tieu nop bai.")
-    return FALLBACK_16_CASES
+    (PROMPT_DIR / f"generate-{stamp}-raw.txt").write_text(raw, encoding="utf-8")
+
+    try:
+        cases = validate(extract_json(raw))
+    except Exception as e:
+        print(f"LOI: khong doc duoc JSON hop le tu AI: {e}")
+        print(f"Xem noi dung tho tai: evidence/prompts/generate-{stamp}-raw.txt")
+        sys.exit(1)
+
+    groups = {}
+    for c in cases:
+        groups[c["group"]] = groups.get(c["group"], 0) + 1
+    print(f"Hop le: {len(cases)} test case, theo nhom: {groups}")
+    if len(cases) < 15:
+        print("CANH BAO: de yeu cau toi thieu 15 test case co y nghia.")
+    for g in ("positive", "negative", "boundary", "validation"):
+        if not groups.get(g):
+            print(f"CANH BAO: thieu nhom '{g}'")
+
+    OUT_FILE.write_text(json.dumps(cases, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Da luu: {OUT_FILE.relative_to(ROOT)}")
+
 
 if __name__ == "__main__":
-    cases = generate_cases()
-    output_path = "tests/generated_test_cases.json"
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(cases, f, ensure_ascii=False, indent=2)
-    print(f"[+] Thanh cong! Da luu {len(cases)} ca kiem thu vao {output_path}")
+    main()
