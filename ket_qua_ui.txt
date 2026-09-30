@@ -1,0 +1,11 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- E:\ai-qa-assistant\ai-qa-assistant\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: E:\ai-qa-assistant\ai-qa-assistant
+plugins: anyio-4.15.1
+collecting ... collected 2 items
+
+tests/test_login_ui.py::test_ui_login_success PASSED                     [ 50%]
+tests/test_login_ui.py::test_ui_login_wrong_password PASSED              [100%]
+
+============================= 2 passed in 12.12s ==============================
