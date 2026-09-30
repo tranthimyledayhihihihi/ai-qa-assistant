@@ -1,0 +1,46 @@
+[
+  {
+    "id": "TC-007",
+    "title": "Dang nhap voi khoang trang thua trong email",
+    "rationale": "Kiem tra he thong co tu dong trim khoang trang cua email hay khong",
+    "input": {
+      "email": " 23115053122327@sv.ute.udn.vn ",
+      "password": "***"
+    },
+    "expected_http_status": 200,
+    "expected_error_kind": null,
+    "expected_message_contains": "Đăng nhập thành công",
+    "actual_http_status": 400,
+    "actual_body": {
+      "success": false,
+      "message": "Email hoặc mật khẩu không đúng"
+    },
+    "errors": [
+      "HTTP status: mong doi 200, thuc te 400",
+      "Noi dung: mong doi chua 'Đăng nhập thành công', thuc te '{\"success\": false, \"message\": \"Email hoặc mật khẩu không đúng\"}'"
+    ],
+    "timestamp": "2026-09-29T17:21:48.682846"
+  },
+  {
+    "id": "TC-007",
+    "title": "Dang nhap voi khoang trang thua trong email",
+    "rationale": "Kiem tra he thong co tu dong trim khoang trang cua email hay khong",
+    "input": {
+      "email": " 23115053122327@sv.ute.udn.vn ",
+      "password": "***"
+    },
+    "expected_http_status": 200,
+    "expected_error_kind": null,
+    "expected_message_contains": "Đăng nhập thành công",
+    "actual_http_status": 400,
+    "actual_body": {
+      "success": false,
+      "message": "Email hoặc mật khẩu không đúng"
+    },
+    "errors": [
+      "HTTP status: mong doi 200, thuc te 400",
+      "Noi dung: mong doi chua 'Đăng nhập thành công', thuc te '{\"success\": false, \"message\": \"Email hoặc mật khẩu không đúng\"}'"
+    ],
+    "timestamp": "2026-09-30T08:59:57.881837"
+  }
+]

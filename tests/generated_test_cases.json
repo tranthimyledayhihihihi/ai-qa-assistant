@@ -95,14 +95,14 @@
     "title": "Dang nhap voi khoang trang thua trong email",
     "rationale": "Kiem tra he thong co tu dong trim khoang trang cua email hay khong",
     "input": {
-      "email": " 23115053122326@sv.ute.udn.vn ",
+      "email": " 23115053122327@sv.ute.udn.vn ",
       "password": "<VALID_PASSWORD>"
     },
-    "expected_http_status": null,
+    "expected_http_status": 200,
     "expected_error_kind": null,
-    "expected_message_contains": null,
-    "priority": "Low",
-    "needs_confirmation": true
+    "expected_message_contains": "Đăng nhập thành công",
+    "priority": "Medium",
+    "needs_confirmation": false
   },
   {
     "id": "TC-008",
