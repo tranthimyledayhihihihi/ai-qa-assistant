@@ -18,17 +18,20 @@ Công cụ trợ lý kiểm thử dùng AI, thực hiện luồng: **User story 
 **Phần được chọn để kiểm thử:** API và giao diện đăng nhập (`POST /api/Auth/login` và trang `/Account/Login`), vì đây là chức năng nền tảng, ảnh hưởng đến toàn bộ các chức năng khác của hệ thống.
 
 ## 3. Giải pháp / Kiến trúc
+
+```
 User story (requirements/user_stories.md)
-│
-▼
+        │
+        ▼
 src/generate_tests.py ──(gọi AI: Google Gemini)──► tests/generated_test_cases.json
-│
-▼
-tests/test_login_api.py (pytest + requests) ──► evidence/failures.json (khi có test fail)
-tests/test_login_ui.py (pytest + Playwright) ──► evidence/ui-*.png (ảnh chụp màn hình)
-│
-▼
+        │
+        ▼
+tests/test_login_api.py (pytest + requests)  ──►  evidence/failures.json (khi có test fail)
+tests/test_login_ui.py  (pytest + Playwright) ──►  evidence/ui-*.png (ảnh chụp màn hình)
+        │
+        ▼
 src/analyze_failures.py ──(gọi AI: Google Gemini)──► evidence/bug_reports.md
+```
 
 **Công nghệ sử dụng:**
 - Python 3.13, pytest — điều phối và chạy test
@@ -106,11 +109,17 @@ Xem chi tiết trong `AI_WORKLOG.md`, tóm tắt:
 - Xây dựng tính năng AI tự khám phá website để gợi ý phạm vi cần test (phần điểm cộng)
 - Chuẩn hóa định dạng lỗi API để đơn giản hóa việc viết test
 
-## 10. Video Demo
+## 10. Minh chứng thay thế Video Demo
 
-*(Sẽ cập nhật link sau khi quay — video dưới 5 phút, trình bày toàn bộ luồng: nhập user story → AI sinh test case → chạy test tự động → phát hiện lỗi → sinh bug report)*
+Do giới hạn thời gian, phần này thay bằng bộ bằng chứng đầy đủ theo từng bước của quy trình, có thể xem trực tiếp trong repo:
 
-Link: `[ĐANG CẬP NHẬT]`
+1. **Sinh test case bằng AI**: `evidence/prompts/` (toàn bộ prompt và phản hồi thô của AI), `tests/generated_test_cases.json` (kết quả 16 test case)
+2. **Chạy test tự động**: `evidence/api_test.png` (kết quả pytest tầng API), `evidence/ui-test-run.png` (kết quả pytest tầng UI với Playwright)
+3. **Phát hiện lỗi**: `evidence/failures.json` (dữ liệu thô của test case fail)
+4. **Sinh bug report**: `evidence/bug_reports.md` (báo cáo lỗi do AI viết)
+5. **Ảnh chụp giao diện thật**: `evidence/ui-login-success.png`, `evidence/ui-login-wrong-password.png`
+
+Toàn bộ các bước trên có thể tái hiện lại bằng cách làm theo hướng dẫn ở mục 7 (Cách chạy lại).
 
 ## 11. AI_WORKLOG
 
